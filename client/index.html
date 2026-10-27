@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SoundSyncPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="panel">
+
+    <section class="block">
+      <div class="seg" id="srcSeg">
+        <button class="seg-btn active" data-src="project">Project clips</button>
+        <button class="seg-btn" data-src="folders">Folders</button>
+      </div>
+    </section>
+
+    <section class="block" id="projectSrc">
+      <div class="info" id="projectInfo">Scanning project…</div>
+      <div class="row">
+        <button id="refreshBtn" class="btn ghost">Rescan project</button>
+        <span class="hint grow">Every clip in the project is used. Video and audio are told apart by file type.</span>
+      </div>
+    </section>
+
+    <section class="block hidden" id="foldersSrc">
+      <label class="lbl" for="videoDir">Video folder</label>
+      <div class="row">
+        <input id="videoDir" type="text" spellcheck="false" placeholder="camera clips">
+        <button id="videoBrowse" class="btn ghost">…</button>
+      </div>
+      <label class="lbl" for="audioDir">Audio folder</label>
+      <div class="row">
+        <input id="audioDir" type="text" spellcheck="false" placeholder="recorder files">
+        <button id="audioBrowse" class="btn ghost">…</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="recursiveChk"> Include sub-folders</label>
+    </section>
+
+    <section class="block">
+      <details id="settingsDetails">
+        <summary>Settings</summary>
+        <div class="settings">
+          <div class="row two">
+            <div>
+              <label class="lbl" for="minZ">Min confidence z</label>
+              <input id="minZ" type="number" step="0.5" min="0" value="12">
+            </div>
+            <div>
+              <label class="lbl" for="minProm">Min prominence</label>
+              <input id="minProm" type="number" step="0.1" min="1" value="1.2">
+            </div>
+          </div>
+          <label class="chk"><input type="checkbox" id="oneToOneChk"> One audio file per video (off lets one recorder roll cover many takes)</label>
+          <label class="chk"><input type="checkbox" id="keepScratchChk"> Keep camera audio audible (otherwise muted)</label>
+          <div class="row two">
+            <div>
+              <label class="lbl" for="binName">Bin</label>
+              <input id="binName" type="text" value="Synced" spellcheck="false">
+            </div>
+            <div>
+              <label class="lbl" for="seqSuffix">Sequence suffix</label>
+              <input id="seqSuffix" type="text" value=" [synced]" spellcheck="false">
+            </div>
+          </div>
+          <div class="row two">
+            <div>
+              <label class="lbl" for="jobs">Parallel decodes</label>
+              <input id="jobs" type="number" min="1" max="16" value="4">
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="block actions">
+      <button id="analyseBtn" class="btn primary">Analyse &amp; match</button>
+      <button id="cancelBtn" class="btn danger hidden">Cancel</button>
+    </section>
+
+    <section class="block progress-block">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="status" id="status">Ready</div>
+    </section>
+
+    <section class="block hidden" id="resultsBlock">
+      <div class="results-head">
+        <label class="chk"><input type="checkbox" id="allChk" checked> <span id="resultsTitle">Results</span></label>
+        <span class="spacer"></span>
+        <button id="csvBtn" class="btn tiny">Export CSV</button>
+      </div>
+      <div id="results" class="results"></div>
+      <div class="row">
+        <button id="createBtn" class="btn primary">Create sequences</button>
+      </div>
+      <div class="hint">Each pair becomes a sequence named after the camera clip, with the recorder audio on its own track. Camera clips and audio stay separate files.</div>
+    </section>
+
+    <section class="block">
+      <details id="logDetails">
+        <summary>Log</summary>
+        <pre id="log"></pre>
+      </details>
+    </section>
+
+    <footer class="foot">
+      <span id="ver">ffmpeg —</span>
+      <span class="spacer"></span>
+      <span id="hostInfo"></span>
+    </footer>
+
+  </div>
+
+  <script src="CSInterface.js"></script>
+  <script src="dsp.js"></script>
+  <script src="media.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
