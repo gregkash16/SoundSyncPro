@@ -24,18 +24,37 @@ no baked media.
 
 ```
 CSXS/manifest.xml   PPRO only, CSXS 11
+client/runtime.js   Windows/macOS abstraction: bundled-binary install, which, kill
 client/dsp.js       matcher port (FFT, STFT, band flux, correlation, z-score)
 client/media.js     ffprobe/ffmpeg via Node (probe, amix decode, folder scan)
 client/main.js      panel logic
 host/host.jsx       sspProjectItems / sspImport / sspCreateSequence (+ tiny JSON)
-bin/                optional ffmpeg.exe + ffprobe.exe (else C:\ffmpeg\bin, else PATH)
+bin/win/            ffmpeg.exe + ffprobe.exe   (gitignored; get-bins.ps1)
+bin/mac/            ffmpeg + ffprobe           (gitignored; get-bins.sh, run on a Mac)
 ```
+
+On first launch the panel copies `bin/<platform>` to a per-user folder
+(`%LOCALAPPDATA%\SoundSyncPro\bin` / `~/Library/Application Support/SoundSyncPro/bin`)
+so macOS gets exec bits and no quarantine flag. Fallbacks: `C:\ffmpeg\bin`,
+Homebrew paths, PATH.
 
 ## Install (dev)
 
 `install.cmd` sets PlayerDebugMode and junctions this folder to
-`%APPDATA%\Adobe\CEP\extensions\com.gregk.soundsyncpro`. Restart Premiere →
-**Window ▸ Extensions ▸ SoundSyncPro**. Debug at `http://localhost:8090`.
+`%APPDATA%\Adobe\CEP\extensions\com.gregk.soundsyncpro` (Mac: `defaults write
+com.adobe.CSXS.11 PlayerDebugMode 1` and symlink into
+`~/Library/Application Support/Adobe/CEP/extensions/`). Fetch binaries with
+`get-bins.ps1` / `./get-bins.sh`. Restart Premiere → **Window ▸ Extensions ▸
+SoundSyncPro**. Debug at `http://localhost:8090`.
+
+## Ship a ZXP
+
+- Windows: `build-zxp.ps1 [version]` → `dist\SoundSyncPro-<v>-win.zxp`
+- Mac: `./build-zxp.sh [version]` → `dist/SoundSyncPro-<v>-mac.zxp` (sign on a Mac)
+
+Self-signed "CEP Panels" cert lives outside the repo (`%LOCALAPPDATA%\cep-tools`
+/ `~/.cep-tools`). Friends install with the aescripts ZXP/UXP Installer; see
+INSTALL.md.
 
 ## Algorithm constants (same as soundsync/matcher.py)
 

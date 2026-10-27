@@ -31,7 +31,7 @@ function sspOk(obj) { obj = obj || {}; obj.ok = true; return JSON.stringify(obj)
 function sspErr(msg, extra) { var o = extra || {}; o.ok = false; o.error = String(msg); return JSON.stringify(o); }
 
 /* ---------------- helpers ---------------- */
-function sspNorm(p) { return String(p || "").replace(/\//g, "\\").toLowerCase(); }
+function sspNorm(p) { return String(p || "").replace(/\\/g, "/").toLowerCase(); }   // same on Windows and macOS
 
 function sspWalk(item, fn, depth) {
   depth = depth || 0;

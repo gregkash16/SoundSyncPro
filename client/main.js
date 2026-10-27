@@ -329,7 +329,7 @@
     var start = el.videoDir.value.trim() || (d.accepted[0] ? path.dirname(d.accepted[0].video_path) : "");
     var res = window.cep.fs.showSaveDialogEx("Save pairing CSV", start, ["csv"], "soundsync_pairs.csv");
     if (!res || res.err !== 0 || !res.data) return;
-    var out = res.data.replace(/\//g, "\\");
+    var out = Runtime.toNative(res.data);
     if (!/\.csv$/i.test(out)) out += ".csv";
     function q(s) { s = String(s === undefined || s === null ? "" : s); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
     var rows = [["status", "video", "audio", "offset_s", "confidence", "z", "prominence", "runner_up", "runner_up_offset_s", "runner_up_confidence", "reason", "video_path", "audio_path"]];
@@ -352,7 +352,7 @@
     var start = input.value.trim() || "";
     var res = window.cep.fs.showOpenDialogEx(false, true, "Choose folder", start, []);
     if (res && res.err === 0 && res.data && res.data.length) {
-      input.value = res.data[0].replace(/\//g, "\\");
+      input.value = Runtime.toNative(res.data[0]);
       autoSibling(input);
       saveSettings();
     }
@@ -399,7 +399,8 @@
   el.results.addEventListener("change", function (e) { if (e.target.classList.contains("rowchk")) updateCreateLabel(); });
 
   loadSettings();
-  el.ver.textContent = Media.ffmpeg ? "ffmpeg: " + path.dirname(Media.ffmpeg) : "ffmpeg NOT FOUND";
-  el.ver.title = "ffmpeg: " + (Media.ffmpeg || "none") + "\nffprobe: " + (Media.ffprobe || "none") + "\next: " + EXT_ROOT;
+  el.ver.textContent = (Media.ffmpeg ? "ffmpeg ok" : "ffmpeg NOT FOUND") + " · " + Runtime.platformLabel;
+  el.ver.title = "ffmpeg: " + (Media.ffmpeg || "none") + "\nffprobe: " + (Media.ffprobe || "none") + "\nbin: " + (tools.bins ? tools.bins.dir : "") + "\next: " + EXT_ROOT;
+  if (tools.bins && tools.bins.copied.length) log("Installed bundled binaries to " + tools.bins.dir + ": " + tools.bins.copied.join(", "));
   scanProject();
 })();

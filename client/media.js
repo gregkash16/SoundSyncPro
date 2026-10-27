@@ -1,35 +1,20 @@
-/* SoundSyncPro media layer — ffprobe / ffmpeg via CEP's Node. Port of matcher.probe + decode_mono. */
+/* SoundSyncPro media layer — ffprobe / ffmpeg via CEP's Node. Port of matcher.probe + decode_mono. Windows + macOS. */
 var Media = (function () {
   "use strict";
 
-  var nodeReq = (window.cep_node && window.cep_node.require) ? window.cep_node.require : require;
-  var fs = nodeReq("fs");
-  var path = nodeReq("path");
-  var cp = nodeReq("child_process");
-  var os = nodeReq("os");
+  var R = Runtime;
+  var fs = R.fs, path = R.path, cp = R.cp, os = R.os;
 
   var VIDEO_EXT = { ".mov": 1, ".mp4": 1, ".mxf": 1, ".avi": 1, ".mts": 1, ".m2ts": 1, ".mkv": 1, ".m4v": 1, ".wmv": 1 };
   var AUDIO_EXT = { ".wav": 1, ".aif": 1, ".aiff": 1, ".mp3": 1, ".m4a": 1, ".flac": 1, ".caf": 1, ".bwf": 1, ".ogg": 1, ".mka": 1, ".w64": 1, ".rf64": 1, ".opus": 1 };
 
-  var extRoot = null, ffmpegPath = null, ffprobePath = null;
+  var ffmpegPath = null, ffprobePath = null, binInfo = null;
 
-  function firstExisting(list) {
-    for (var i = 0; i < list.length; i++) { try { if (fs.existsSync(list[i])) return list[i]; } catch (e) {} }
-    return null;
-  }
-  function whereExe(name) {
-    try {
-      var r = cp.spawnSync("where.exe", [name], { windowsHide: true, encoding: "utf8" });
-      if (r.status === 0 && r.stdout) { var f = r.stdout.split(/\r?\n/).filter(Boolean)[0]; if (f && fs.existsSync(f)) return f; }
-    } catch (e) {}
-    return null;
-  }
   function init(root) {
-    extRoot = root;
-    var bin = path.join(root, "bin");
-    ffmpegPath = firstExisting([path.join(bin, "ffmpeg.exe"), "C:\\ffmpeg\\bin\\ffmpeg.exe", "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe"]) || whereExe("ffmpeg");
-    ffprobePath = firstExisting([path.join(bin, "ffprobe.exe"), "C:\\ffmpeg\\bin\\ffprobe.exe", "C:\\Program Files\\ffmpeg\\bin\\ffprobe.exe"]) || whereExe("ffprobe");
-    return { ffmpeg: ffmpegPath, ffprobe: ffprobePath };
+    binInfo = R.ensureBins(root, "SoundSyncPro", ["ffmpeg", "ffprobe"]);
+    ffmpegPath = R.findTool("ffmpeg", binInfo.bins.ffmpeg);
+    ffprobePath = R.findTool("ffprobe", binInfo.bins.ffprobe);
+    return { ffmpeg: ffmpegPath, ffprobe: ffprobePath, bins: binInfo };
   }
 
   function isVideo(p) { return !!VIDEO_EXT[path.extname(p).toLowerCase()]; }
@@ -41,6 +26,7 @@ var Media = (function () {
     function walk(d) {
       var names; try { names = fs.readdirSync(d); } catch (e) { return; }
       names.forEach(function (name) {
+        if (name.charAt(0) === ".") return;
         var full = path.join(d, name), st;
         try { st = fs.statSync(full); } catch (e) { return; }
         if (st.isDirectory()) { if (recursive) walk(full); return; }
@@ -62,7 +48,7 @@ var Media = (function () {
     return new Promise(function (resolve) {
       var id = ++seq, chunks = [], err = "", total = 0;
       var child;
-      try { child = cp.spawn(exe, args, { windowsHide: true }); }
+      try { child = cp.spawn(exe, args, { windowsHide: true, env: R.spawnEnv() }); }
       catch (e) { return resolve({ code: -1, buf: null, err: String(e) }); }
       live[id] = child;
       child.stdout.on("data", function (c) { chunks.push(c); total += c.length; });
@@ -73,14 +59,11 @@ var Media = (function () {
         var buf = total ? Buffer.concat(chunks, total) : null;
         resolve({ code: code, buf: buf, err: err });
       });
-      if (cancel) cancel.onCancel(function () { try { child.kill(); } catch (e) {} });
+      if (cancel) cancel.onCancel(function () { R.killTree(child); });
     });
   }
   function killAll() {
-    Object.keys(live).forEach(function (k) {
-      try { cp.spawnSync("taskkill", ["/pid", String(live[k].pid), "/T", "/F"], { windowsHide: true }); } catch (e) {}
-      try { live[k].kill(); } catch (e) {}
-    });
+    Object.keys(live).forEach(function (k) { R.killTree(live[k]); });
   }
 
   function Canceller() { this.cancelled = false; this.subs = []; }
@@ -182,7 +165,7 @@ var Media = (function () {
     init: init, isVideo: isVideo, isAudio: isAudio, gather: gather,
     probe: probe, decodeMono: decodeMono, loud: loud, Canceller: Canceller,
     cpuCount: cpuCount, killAll: killAll,
-    get ffmpeg() { return ffmpegPath; }, get ffprobe() { return ffprobePath; },
+    get ffmpeg() { return ffmpegPath; }, get ffprobe() { return ffprobePath; }, get bins() { return binInfo; },
     fs: fs, path: path
   };
 })();

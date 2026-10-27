@@ -1,3 +1,8 @@
-bin/*.exe
+bin/win/*
+bin/mac/*
+!bin/win/.gitkeep
+!bin/mac/.gitkeep
 Thumbs.db
+.DS_Store
 *.csv
+dist/
