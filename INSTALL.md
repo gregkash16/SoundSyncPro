@@ -4,7 +4,8 @@ SoundSyncPro is a Premiere Pro panel (2024 or newer) that matches
 separately-recorded audio to your camera clips by listening to them, then
 builds one synced sequence per pair in your project. Windows and macOS.
 
-Pick the file for your computer:
+Download from the [Releases page](https://github.com/gregkash16/SoundSyncPro/releases/latest)
+and pick the file for your computer:
 
 - Windows: `SoundSyncPro-<version>-win.zxp`
 - Mac: `SoundSyncPro-<version>-mac.zxp` (Apple Silicon and Intel)
@@ -33,8 +34,7 @@ user folder (`%LOCALAPPDATA%\SoundSyncPro` on Windows,
 - Blank panel after install? Known Adobe quirk: run Premiere once as
   Administrator (Windows) or from an admin account (Mac), open the panel, then
   go back to normal.
-- Mac, Apple Silicon: if ffmpeg complains about Rosetta, run
-  `softwareupdate --install-rosetta` once in Terminal.
+- Mac: the bundled ffmpeg is native on both Apple Silicon and Intel. No Rosetta needed.
 
 ## Uninstall
 

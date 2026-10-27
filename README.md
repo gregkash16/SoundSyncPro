@@ -6,6 +6,12 @@ open project. Self-contained: a JavaScript port of the Sound Syncing matcher,
 ffmpeg for decoding, ExtendScript for the Premiere side. No Python, no XML,
 no baked media.
 
+## Download
+
+Latest Windows and Mac `.zxp` packages are on the
+[Releases page](https://github.com/gregkash16/SoundSyncPro/releases/latest). Install steps in
+[INSTALL.md](INSTALL.md).
+
 ## What it does
 
 1. **Source**: every clip already in the project, or a Video folder + Audio
@@ -30,7 +36,8 @@ client/media.js     ffprobe/ffmpeg via Node (probe, amix decode, folder scan)
 client/main.js      panel logic
 host/host.jsx       sspProjectItems / sspImport / sspCreateSequence (+ tiny JSON)
 bin/win/            ffmpeg.exe + ffprobe.exe   (gitignored; get-bins.ps1)
-bin/mac/            ffmpeg + ffprobe           (gitignored; get-bins.sh, run on a Mac)
+bin/mac/            ffmpeg-arm64, ffmpeg-x64, ffprobe-arm64, ffprobe-x64
+                    (gitignored; get-bins.sh, run on a Mac; panel picks the -arm64/-x64 one)
 ```
 
 On first launch the panel copies `bin/<platform>` to a per-user folder
@@ -55,6 +62,8 @@ SoundSyncPro**. Debug at `http://localhost:8090`.
 Self-signed "CEP Panels" cert lives outside the repo (`%LOCALAPPDATA%\cep-tools`
 / `~/.cep-tools`). Friends install with the aescripts ZXP/UXP Installer; see
 INSTALL.md.
+Upload both `.zxp` files to a GitHub release (`gh release upload v<v> dist/*.zxp`) so friends
+can grab them from the Releases page.
 
 ## Algorithm constants (same as soundsync/matcher.py)
 
